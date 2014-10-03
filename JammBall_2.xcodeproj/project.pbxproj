@@ -14,6 +14,8 @@
 		98CDD7C719DE337200A83271 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 98CDD7C619DE337200A83271 /* Images.xcassets */; };
 		98CDD7CA19DE337200A83271 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 98CDD7C819DE337200A83271 /* LaunchScreen.xib */; };
 		98CDD7D619DE337200A83271 /* JammBall_2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 98CDD7D519DE337200A83271 /* JammBall_2Tests.m */; };
+		98CDD7E719DE343300A83271 /* ball.png in Resources */ = {isa = PBXBuildFile; fileRef = 98CDD7E519DE343300A83271 /* ball.png */; };
+		98CDD7E819DE343300A83271 /* blackhall.png in Resources */ = {isa = PBXBuildFile; fileRef = 98CDD7E619DE343300A83271 /* blackhall.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,8 @@
 		98CDD7CF19DE337200A83271 /* JammBall_2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JammBall_2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		98CDD7D419DE337200A83271 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		98CDD7D519DE337200A83271 /* JammBall_2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JammBall_2Tests.m; sourceTree = "<group>"; };
+		98CDD7E519DE343300A83271 /* ball.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ball.png; sourceTree = "<group>"; };
+		98CDD7E619DE343300A83271 /* blackhall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackhall.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,13 +85,14 @@
 		98CDD7B819DE337200A83271 /* JammBall_2 */ = {
 			isa = PBXGroup;
 			children = (
+				98CDD7C319DE337200A83271 /* Main.storyboard */,
+				98CDD7C819DE337200A83271 /* LaunchScreen.xib */,
 				98CDD7BD19DE337200A83271 /* AppDelegate.h */,
 				98CDD7BE19DE337200A83271 /* AppDelegate.m */,
 				98CDD7C019DE337200A83271 /* ViewController.h */,
 				98CDD7C119DE337200A83271 /* ViewController.m */,
-				98CDD7C319DE337200A83271 /* Main.storyboard */,
 				98CDD7C619DE337200A83271 /* Images.xcassets */,
-				98CDD7C819DE337200A83271 /* LaunchScreen.xib */,
+				98CDD7E419DE343300A83271 /* images */,
 				98CDD7B919DE337200A83271 /* Supporting Files */,
 			);
 			path = JammBall_2;
@@ -117,6 +122,15 @@
 				98CDD7D419DE337200A83271 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		98CDD7E419DE343300A83271 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				98CDD7E519DE343300A83271 /* ball.png */,
+				98CDD7E619DE343300A83271 /* blackhall.png */,
+			);
+			path = images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -199,8 +213,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98CDD7E819DE343300A83271 /* blackhall.png in Resources */,
 				98CDD7C519DE337200A83271 /* Main.storyboard in Resources */,
 				98CDD7CA19DE337200A83271 /* LaunchScreen.xib in Resources */,
+				98CDD7E719DE343300A83271 /* ball.png in Resources */,
 				98CDD7C719DE337200A83271 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
