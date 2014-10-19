@@ -1,85 +1,92 @@
 //
 //  ViewController.m
-//  Game_007
+//  JammBall_1
 //
 //  Created by 寺内 信夫 on 2014/10/01.
 //  Copyright (c) 2014年 寺内 信夫. All rights reserved.
 //
 
 #import "ViewController.h"
+
 #import "AppDelegate.h"
+#import "StartScene.h"
+#import "GameScene.h"
+#import <EventKit/EventKit.h>
+#import <EventKitUI/EventKitUI.h>
+#import <CoreMotion/CoreMotion.h>
 
+@implementation SKScene (Unarchive)
 
-@interface ViewController()
++ (instancetype)unarchiveFromFile:(NSString *)file
+{
+
+	/* Retrieve scene file path from the application bundle */
+	NSString *nodePath = [[NSBundle mainBundle] pathForResource: file
+														 ofType: @"sks"];
+	
+	/* Unarchive the file to an SKScene object */
+	NSData *data = [NSData dataWithContentsOfFile: nodePath
+										  options: NSDataReadingMappedIfSafe
+											error: nil];
+	
+	NSKeyedUnarchiver *arch = [[NSKeyedUnarchiver alloc] initForReadingWithData: data];
+	
+	[arch setClass: self
+	  forClassName: @"SKScene"];
+	
+	SKScene *scene = [arch decodeObjectForKey: NSKeyedArchiveRootObjectKey];
+
+	[arch finishDecoding];
+	
+	return scene;
+
+}
+
+@end
+
+@interface ViewController ()
 {
 	
 @private
 	
-	NSInteger integer_MyTensu;
-	
-	NSString *string_1;
-	
-	NSTimer *timer, *timer2, *timer_Kieru;
-	
-	
-//	UIImageView *imageView_[4];
-//
-	UIAccelerationValue speedX_;
-	UIAccelerationValue speedY_;
+	AppDelegate *app;
 
-	NSInteger integer_BallCount;
+	NSTimer *timer, *timer2;
+
+	//敵の管理
+	NSMutableArray *array_Teki;
 	
-	NSMutableArray *array_Ball;
+	StartScene *startScene;
+	GameScene  *gameScene;
 	
 }
-
-//@property ReminderViewController *remin;
 
 @end
 
-
 @implementation ViewController
-{
-	//MCBrowserViewController *_browserViewController;
-	AppDelegate *app;
-	UILabel *aiteno;
-	int i;
-}
-
-/*
- @synthesize myPeerID;
- @synthesize serviceType;
- @synthesize nearbyServiceAdvertiser;
- @synthesize nearbyServiceBrowser;
- @synthesize session;
- 
- @synthesize myself;
- @synthesize companion;
- */
-
 
 - (void)viewDidLoad
 {
-	[super viewDidLoad];
-
-	app = [[UIApplication sharedApplication] delegate];
-	//app.stepDelegate = nil;//「self」では「相容れない'~'から'id<~>'に格納しようとしているよ」と出る。
 	
-	NSLog(@"%s %s:%d", __PRETTY_FUNCTION__, __FILE__, __LINE__);
- 
-	// Multipeer Connectivityの初期化→サービス提供
+	[super viewDidLoad];
+	
+
 	self.serviceType = SERVICE_TYPE;
 	
-	MCPeerID *peerID = [[MCPeerID alloc] initWithDisplayName:[UIDevice currentDevice].name];
 	
-	self.session = [[MCSession alloc] initWithPeer:peerID securityIdentity:nil encryptionPreference:MCEncryptionOptional];
+	MCPeerID *peerID = [[MCPeerID alloc] initWithDisplayName: [UIDevice currentDevice].name];
+	
+	self.session = [[MCSession alloc] initWithPeer: peerID
+								  securityIdentity: nil
+							  encryptionPreference: MCEncryptionOptional];
+	
 	self.session.delegate = self;
-	//self.session = session;
-
-	NSMutableDictionary *info = [NSMutableDictionary dictionaryWithCapacity:10];
-	[info setObject:@"1.0" forKey:@"version"];
 	
-	//MCAdvertiserAssistant *assistant = [[MCAdvertiserAssistant alloc] initWithServiceType: self.serviceType
+	
+	NSMutableDictionary *info = [NSMutableDictionary dictionaryWithCapacity: 10];
+
+	[info setObject: @"1.0" forKey: @"version"];
+	
 	self.assistant = [[MCAdvertiserAssistant alloc] initWithServiceType: self.serviceType
 														  discoveryInfo: info
 																session: self.session];
@@ -87,182 +94,266 @@
 	
 	[self.assistant start];
 	
-	//self.assistant = assistant;
-	//_remin = [[ReminderViewController alloc]init];
-	
+
 	NSNotificationCenter*   nc = [NSNotificationCenter defaultCenter];
-	[nc addObserver:self selector:@selector(success) name:@"tuuti" object:nil];
+	
+	[nc addObserver: self
+		   selector: @selector( success )
+			   name: @"tuuti"
+			 object: nil];
 	
 	
-	//固定
-//	_myself.text = [UIDevice currentDevice].name;
+	// 敵の位置の初期化
+	array_Teki = [[NSMutableArray alloc] init];
 	
-	NSLog(@"---------------%@",[UIDevice currentDevice].name);
-	/*    _companion.text = [didReceiveData: fromPeer:];
-	 NSLog(@"==========%@",);
-	 
-	 AppDelegate *appDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-	 appDelegate.stepDelegate = self;
-	 
-	 */
-	//return (UI_USER_INTERFACE_IDIOM()==UIUserInterfaceIdiomPhone);
-	
-	//---------------------------------------
-	
-	timer = [NSTimer scheduledTimerWithTimeInterval: 0.5
-											 target: self
-										   selector: @selector( aprivate )
-										   userInfo: nil
-											repeats: YES];
 	
 	//背景色を白に指定
 	self.view.backgroundColor = [UIColor whiteColor];
 	
-	array_Ball = [[NSMutableArray alloc] init];
 	
-	[self initBall];
+	// Configure the view.
+	SKView *skView = (SKView *)self.view;
+	skView.showsFPS = YES;
+	skView.showsNodeCount = YES;
+	/* Sprite Kit applies additional optimizations to improve rendering performance */
+	skView.ignoresSiblingOrder = YES;
 	
-	self.label_TekiTensu_2.hidden = YES;
-	self.label_TekiTensu_3.hidden = YES;
-	self.label_TekiTensu_4.hidden = YES;
+	// Create and configure the scene.
+//	gameScene = [GameScene unarchiveFromFile: @"GameScene"];
+	startScene = [StartScene unarchiveFromFile: @"StartScene"];
 	
+//	gameScene.scaleMode = SKSceneScaleModeAspectFill;
+	startScene.scaleMode = SKSceneScaleModeAspectFill;
+	
+	// Present the scene.
+//	[skView presentScene: gameScene];
+	[skView presentScene: startScene];
+
 }
 
-
-/*
- -(void)kirakira
- {
- 
- if (i == 0)
- {
- self.hosi.hidden = YES;
- i = 1;
- }else
- {
- self.hosi.hidden = NO;
- i = 0;
- }
- 
- }
- */
 - (void)didReceiveMemoryWarning
 {
+
 	[super didReceiveMemoryWarning];
 	// Dispose of any resources that can be recreated.
+
 }
 
-- (void)viewWillAppear:(BOOL)animated
+
+// Multipeer Connectivityで接続先を見つけるUIを表示する
+- (IBAction)connect: (UIButton *)sender;
 {
-	[super viewWillAppear:animated];
 	
-	//加速度センサーからの値取得開始
-	UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
-	accelerometer.updateInterval = 1.0 / 30.0;
-	accelerometer.delegate = self;
+	//AppDelegate *appDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+	
+	MCBrowserViewController *_browserViewController = [[MCBrowserViewController alloc] initWithServiceType: self.serviceType session: self.session];
+	
+	_browserViewController.delegate             = self;
+	_browserViewController.minimumNumberOfPeers = 2;
+	_browserViewController.maximumNumberOfPeers = kMCSessionMaximumNumberOfPeers;
+	
+	[self presentViewController: _browserViewController
+					   animated: YES
+					 completion: NULL];
+	
+	
+	//    NSLog(@"kokohatottayo-------------------");
+	
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+//キャンセルでviewを隠す
+-(void)browserViewControllerWasCancelled: (MCBrowserViewController *)browserViewController
 {
-	[super viewWillDisappear:animated];
 	
-	speedX_ = speedY_ = 0.0;
+	[browserViewController dismissViewControllerAnimated:YES completion:NULL];
 	
-	//加速度センサーからの値取得終了
-	UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
-	accelerometer.delegate = nil;
 }
 
-//加速度センサーからの通知
-- (void)accelerometer:(UIAccelerometer *)accelerometer
-		didAccelerate:(UIAcceleration *)acceleration
+//完了でviewをかくす
+-(void)browserViewControllerDidFinish:(MCBrowserViewController *)browserViewController;
 {
+	
+	[self aprivate];
+	
+	[browserViewController dismissViewControllerAnimated:YES completion:NULL];
+	
+	//	self.gameScene.hidden = NO;
+	gameScene.hidden = NO;
+	
+	[gameScene readyGame];
+	
+}
 
-	for ( NSMutableDictionary *dic in array_Ball ) {
+- (void)setSendData: (NSString *)string
+{
+	
+	NSError *error = nil;
+	
+	//送信する文字列を作成
+	//NSData へ文字列を変換
+	NSData *data = [string dataUsingEncoding: NSUTF8StringEncoding];
+	
+	//送信先の Peer を指定する
+	NSArray *peerIDs = self.session.connectedPeers;
+	if ( [peerIDs count] == 0 ) {
+			 
+//		self.textView_String.text = @"この端末は、誰にも繋がっていない！！";
+		[startScene setStatusData: @"この端末は、誰にも繋がっていない！！"];
+		[gameScene setTextLabel: @"この端末は、誰にも繋がっていない！！"];
+
+		return;
 		
-		UIImageView *imageView = [dic objectForKey: @"image_view"];
+	}
+		 
+	//	self.textView_String.text = [peerIDs componentsJoinedByString: @", "];
+	[startScene setStatusData: [peerIDs componentsJoinedByString: @", "]];
+	[gameScene   setTextLabel: [peerIDs componentsJoinedByString: @", "]];
+
+		 
+	[self.session sendData: data
+				   toPeers: peerIDs
+				  withMode: MCSessionSendDataReliable
+					 error: &error];
+	
+	if ( error ) {
+			 
+		NSLog( @"%@", error );
+			 
+	}
+		 
+}
+	 
+// dataを受け取った
+// サブスレッドで受けてる
+- (void)session: (MCSession *)session
+ didReceiveData: (NSData *)data
+	   fromPeer: (MCPeerID *)peerID
+{
+	
+	NSString *display_name = peerID.displayName;
+		 
+	NSLog(@"-session: didReceiveData: fromPeer:%@", display_name);
+		 
+	//   NSError *error;
+		 
+	//	dic = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+	//
+	//	NSString *title = [dic objectForKey:@"title"];
+	//	NSString *note = [dic objectForKey:@"note"];
+	//
+	//	NSLog(@"タイトル %@ 本文　%@", title, note);
+	//	[self saveRiminder:title note:note];
+	
+	//    NSDictionary *json = [NSJSONSerialization JSONObjectWithData: data options: NSJSONReadingMutableLeaves error: &error];
+	//    if (!error) {
+	//        NSLog(@"data = %@", json);
+	//        [self.stepDelegate recvDictionary:json];
+	//    }
+		 
+	NSString *string = [[NSString alloc] initWithData: data
+											 encoding: NSUTF8StringEncoding];
+	
+	NSString *command = [string substringToIndex: 1];
+	string = [string substringFromIndex: 1];
+	
+	NSString *tensuu = [string substringToIndex: 6];
+	string = [string substringFromIndex: 6];
+	
+	NSString *message = string;
+	
+	
+	NSMutableDictionary *dic;
+	NSString *name;
+	BOOL flag = NO;
+	
+	NSInteger index = 0;
+	
+	for ( dic in array_Teki ) {
 		
-		NSNumber *number = [dic objectForKey: @"speed_x"];
-		float speed_x = number.floatValue;
+		name = [dic objectForKey: @"name"];
 		
-		number           = [dic objectForKey: @"speed_y"];
-		float speed_y = number.floatValue;
-		
-		speed_x += acceleration.x;
-		speed_y += acceleration.y;
-		
-		CGFloat posX = imageView.center.x + speed_x;
-		CGFloat posY = imageView.center.y - speed_y;
-		
-		//端にあたったら跳ね返る処理
-		if (posX < 0.0) {
+		if ( [name isEqualToString: display_name] ) {
 			
-			posX = 0.0;
+			[dic setObject: tensuu forKey: @"敵点数"];
 			
-			//左の壁にあたったら0.4倍の力で跳ね返る
-			speed_x *= -0.4;
+			NSNumber *number = [dic objectForKey: @"index"];
+			NSInteger idx = number.integerValue;
 			
-		} else if (posX > self.view.bounds.size.width) {
+			[startScene setIndex: idx
+							name: name
+						 command: command
+						  tensuu: tensuu
+						 message: message];
+
+			[gameScene setIndex: idx
+						   name: name
+						command: command
+						 tensuu: tensuu
+						message: message];
 			
-			posX = self.view.bounds.size.width;
+			flag = YES;
 			
-			//右の壁にあたったら0.4倍の力で跳ね返る
-			speed_x *= -0.4;
+			break;
 			
 		}
-		if (posY < 0.0) {
-			
-			posY = 0.0;
-			
-			//上の壁にあたっても跳ね返らない
-			speed_y = 0.0;
-			
-		} else if (posY > self.view.bounds.size.height) {
-			
-			posY = self.view.bounds.size.height;
-			
-			//下の壁にあたったら1.5倍の力で跳ね返る
-			speed_y *= -1.5;
-			
-		}
 		
-		imageView.center = CGPointMake( posX, posY );
+		index ++;
 		
-		NSNumber *number_x = [[NSNumber alloc] initWithFloat: speed_x];
-		NSNumber *number_y = [[NSNumber alloc] initWithFloat: speed_y];
+	}
+	
+	if ( flag == NO ) {
 		
-		[dic setObject: imageView forKey: @"image_view"];
-		[dic setObject: number_x  forKey: @"speed_x"];
-		[dic setObject: number_y  forKey: @"speed_y"];
+		dic = [[NSMutableDictionary alloc] init];
+		
+		NSNumber *number = [[NSNumber alloc] initWithInteger: index];
+		
+		[dic setObject: number       forKey: @"index"];
+		[dic setObject: display_name forKey: @"name"];
+		[dic setObject: string       forKey: @"敵点数"];
+		
+		[array_Teki addObject: dic];
+		
+		[startScene setIndex: index
+						name: display_name
+					 command: command
+					  tensuu: tensuu
+					 message: message];
+		
+		[gameScene setIndex: index
+					   name: display_name
+					command: command
+					 tensuu: tensuu
+					message: message];
 		
 	}
 	
 }
 
-//ローパスフィルタ
-- (CGFloat)lowpassFilter:(CGFloat)accel before:(CGFloat)before
-{
-	static const CGFloat kFilteringFactor = 0.1;
-	return (accel * kFilteringFactor) + (before * (1.0 - kFilteringFactor));
-}
 
-//ハイパスフィルタ
-- (CGFloat)highpassFilter:(CGFloat)accel before:(CGFloat)before
-{
-	return (accel - [self lowpassFilter:accel before:before]);
-}
 
-- (void)showAlert:(NSString *)title message:(NSString *)message
+- (void)showAlert: (NSString *)title
+		  message: (NSString *)message
 {
-	UIAlertView *alert=[[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+
+	UIAlertView *alert= [[UIAlertView alloc] initWithTitle: title
+												   message: message
+												  delegate: self
+										 cancelButtonTitle: @"OK"
+										 otherButtonTitles: nil];
+
 	[alert show];
 	
 }
 
-- (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error
+- (void)            browser: (MCNearbyServiceBrowser *)browser
+didNotStartBrowsingForPeers: (NSError *)error
 {
+	
 	// BLog();
-	if(error){
+	if ( error ) {
+	
 		//        NSLog(@"[error localizedDescription] %@", [error localizedDescription]);
+	
 	}
 	
 }
@@ -272,77 +363,33 @@
 	return NO;
 }
 
-
-/*
- //多分これは重要！！！後で解読せよ！！
- - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
- {
- 
- NSLog(@"found Peer : %@", peerID.displayName);
- //[self showAlert:@"found Peer" message:peerID.displayName];
- // if([self isPhone]){
- // _companion.text = peerID.displayName;
- // }else{
- // _companion.text = peerID.displayName;
- // }
- // [nearbyServiceBrowser invitePeer:peerID toSession:session withContext:[@"Welcome" dataUsingEncoding:NSUTF8StringEncoding] timeout:10];
- }
- 
- */
-/*
- - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID
- {
- 
- }
- */
-
-- (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didNotStartAdvertisingPeer:(NSError *)error
+- (void)        advertiser: (MCNearbyServiceAdvertiser *)advertiser
+didNotStartAdvertisingPeer: (NSError *)error
 {
-	if(error){
+
+	if ( error ) {
+	
 		//        NSLog(@"%@", [error localizedDescription]);
-		[self showAlert:@"ERROR didNotStartAdvertisingPeer" message:[error localizedDescription]];
+		[self showAlert: @"ERROR didNotStartAdvertisingPeer"
+				message: [error localizedDescription]];
+
 	}
+
 }
 
-- (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler
+- (void)          advertiser: (MCNearbyServiceAdvertiser *)advertiser
+didReceiveInvitationFromPeer: (MCPeerID *)peerID
+				 withContext: (NSData *)context
+		   invitationHandler: ( void (^)( BOOL accept, MCSession *session ))invitationHandler
 {
 	
-	invitationHandler(TRUE, self.session);
-	[self showAlert:@"didReceiveInvitationFromPeer" message:@"accept invitation!"];
+	invitationHandler( TRUE, self.session );
+
+	[self showAlert: @"didReceiveInvitationFromPeer"
+			message: @"accept invitation!"];
+
 }
 
-
-// Multipeer Connectivityで接続先を見つけるUIを表示する
-- (IBAction)connect:(UIButton *)sender;
-{
-	
-	//AppDelegate *appDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-	
-	MCBrowserViewController *_browserViewController = [[MCBrowserViewController alloc] initWithServiceType: self.serviceType session: self.session];
-	
-	_browserViewController.delegate = self;
-	_browserViewController.minimumNumberOfPeers = kMCSessionMinimumNumberOfPeers;
-	_browserViewController.maximumNumberOfPeers = kMCSessionMaximumNumberOfPeers;
-	
-	[self presentViewController:_browserViewController animated:YES completion:NULL];
-	
-	
-	//    NSLog(@"kokohatottayo-------------------");
-	
-}
-
-//キャンセルでviewを隠す
--(void)browserViewControllerWasCancelled:(MCBrowserViewController *)browserViewController
-{
-	[browserViewController dismissViewControllerAnimated:YES completion:NULL];
-}
-//完了でviewをかくす
--(void)browserViewControllerDidFinish:(MCBrowserViewController *)browserViewController;
-{
-	[self aprivate];
-	
-	[browserViewController dismissViewControllerAnimated:YES completion:NULL];
-}
 // デバイスの表示可否
 - (BOOL)browserViewController:(MCBrowserViewController *)browserViewController shouldPresentNearbyPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info;
 {
@@ -353,6 +400,7 @@
 	};
 	return NO;
 }
+
 -(void)success {
 	
 }
@@ -360,92 +408,59 @@
 //perrIDを！！！！
 - (void)aprivate
 {
+
 	//送信先の Peer を指定する
 	//小さなデータをすべての接続先に送信する場合は、connectedPeers
 	//送信先を制限したい場合届けたい送信先のみで構成したNSArrayを指定する
 	//self.session = app.session;
-//	NSArray *peerIDs = self.session.connectedPeers;
+	//NSArray *peerIDs = self.session.connectedPeers;
+	
+//	int index = 0;
 //	
-//	for (int count = 0; count < peerIDs.count; count++)
-//	{
-//		MCPeerID *peerID = [peerIDs objectAtIndex:count];
-//		switch (count)
-//		{
+//	for ( NSDictionary *dic in array_Teki ) {
+//
+//		NSString *name = [dic objectForKey: @"name"];
+//		
+//		switch ( index ) {
+//				
 //			case 0:
-//				_companion.text = peerID.displayName;
 //				
-//				if (i == 0)
-//				{
-//					self.hosi.hidden = YES;
-//					i = 1;
-//				}else
-//				{
-//					self.hosi.hidden = NO;
-//					i = 0;
-//				}
+//				self.label_Teki_1.text      = name;
+//				self.label_TekiTensu_1.text = [dic objectForKey: @"敵点数"];
+//				
 //				break;
+//				
 //			case 1:
-//				_companion1.text = peerID.displayName;
 //				
-//				if (i == 0)
-//				{
-//					self.hosi1.hidden = YES;
-//					i = 1;
-//				}else
-//				{
-//					self.hosi1.hidden = NO;
-//					i = 0;
-//				}
-//				
+//				self.label_Teki_2.text      = name;
+//				self.label_TekiTensu_2.text = [dic objectForKey: @"敵点数"];
 //				
 //				break;
+//				
 //			case 2:
-//				_companion2.text = peerID.displayName;
-//				if (i == 0)
-//				{
-//					self.hosi2.hidden = YES;
-//					i = 1;
-//				}else
-//				{
-//					self.hosi2.hidden = NO;
-//					i = 0;
-//				}
 //				
+//				self.label_Teki_3.text      = name;
+//				self.label_TekiTensu_3.text = [dic objectForKey: @"敵点数"];
+//
 //				break;
+//				
 //			case 3:
-//				_companion3.text = peerID.displayName;
-//				if (i == 0)
-//				{
-//					self.hosi3.hidden = YES;
-//					i = 1;
-//				}else
-//				{
-//					self.hosi3.hidden = NO;
-//					i = 0;
-//				}
+//				
+//				self.label_Teki_4.text      = name;
+//				self.label_TekiTensu_4.text = [dic objectForKey: @"敵点数"];
 //				
 //				break;
-//			case 4:
-//				_companion4.text = peerID.displayName;
-//				if (i == 0)
-//				{
-//					self.hosi4.hidden = YES;
-//					i = 1;
-//				}else
-//				{
-//					self.hosi4.hidden = NO;
-//					i = 0;
-//				}
 //				
 //			default:
+//				
 //				break;
+//				
 //		}
+//		
 //	}
+//
+//	[self tamaDown];
 
-	self.label_TekiTensu_1.text = string_1;
-	
-	[self tamaDown];
-	
 }
 
 //    NSMutableArray *labels = [[NSMutableArray alloc] init];
@@ -528,50 +543,6 @@ withDiscoveryInfo: (NSDictionary *)info{
 	}
 }
 
-// dataを受け取った
-// サブスレッドで受けてる
-// 送信元： - (BOOL)sendData:(NSData *)data toPeers:(NSArray *)peerIDs withMode:(MCSessionSendDataMode)mode error:(NSError **)error;
-- (void)session: (MCSession *)session
- didReceiveData: (NSData *)data
-	   fromPeer: (MCPeerID *)peerID;
-{
-	
-	NSLog(@"-session: didReceiveData: fromPeer:%@", peerID.displayName);
-
- //   NSError *error;
-	
-	//	dic = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-	//
-	//	NSString *title = [dic objectForKey:@"title"];
-	//	NSString *note = [dic objectForKey:@"note"];
-	//
-	//	NSLog(@"タイトル %@ 本文　%@", title, note);
-	//	[self saveRiminder:title note:note];
-	
-	//    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&error];
-	//    if (!error) {
-	//        NSLog(@"data = %@", json);
-	//        [self.stepDelegate recvDictionary:json];
-	//    }
-	
-	NSString *string = [[NSString alloc] initWithData: data
-											 encoding: NSUTF8StringEncoding];
-	
-	//self.label_TekiTensu_1.text = [NSString stringWithFormat: @"敵１    %@", string];
-	string_1 = [NSString stringWithFormat: @"敵１    %@", string];
-	
-	[self initBall];
-	
-	NSLog( @"count = %d", [array_Ball count] );
-	
-	timer2 = [NSTimer scheduledTimerWithTimeInterval: 0.1
-											  target: self
-											selector: @selector( tamaDown )
-											userInfo: nil
-											 repeats: NO];
-
-}
-
 // 相手からストリームデータを受けた
 - (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID;
 {
@@ -606,6 +577,7 @@ withDiscoveryInfo: (NSDictionary *)info{
 	certificateHandler(YES);
 }
 
+
 #pragma mark - KVO
 // KVOの通知を受ける
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
@@ -621,18 +593,19 @@ withDiscoveryInfo: (NSDictionary *)info{
 	}
 }
 
+
 #pragma mark - NSStreamDelegate
 // ストリームの状態が変化した
 - (void)stream:(NSStream *)theStream handleEvent:(NSStreamEvent)streamEvent;
 {
-	NSLog(@"-stream: handleEvent: %@%@%@%@%@%@",
-		  streamEvent & NSStreamEventNone ? @"NSStreamEventNone, " : @"",
-		  streamEvent & NSStreamEventOpenCompleted ? @"NSStreamEventOpenCompleted, " : @"",
-		  streamEvent & NSStreamEventHasBytesAvailable ? @"NSStreamEventHasBytesAvailable, " : @"",
-		  streamEvent & NSStreamEventHasSpaceAvailable ? @"NSStreamEventHasSpaceAvailable, " : @"",
-		  streamEvent & NSStreamEventErrorOccurred ? @"NSStreamEventErrorOccurred, " : @"",
-		  streamEvent & NSStreamEventEndEncountered ? @"NSStreamEventEndEncountered, " : @""
-		  );
+//	NSLog(@"-stream: handleEvent: %@%@%@%@%@%@",
+//		  streamEvent & NSStreamEventNone ? @"NSStreamEventNone, " : @"",
+//		  streamEvent & NSStreamEventOpenCompleted ? @"NSStreamEventOpenCompleted, " : @"",
+//		  streamEvent & NSStreamEventHasBytesAvailable ? @"NSStreamEventHasBytesAvailable, " : @"",
+//		  streamEvent & NSStreamEventHasSpaceAvailable ? @"NSStreamEventHasSpaceAvailable, " : @"",
+//		  streamEvent & NSStreamEventErrorOccurred ? @"NSStreamEventErrorOccurred, " : @"",
+//		  streamEvent & NSStreamEventEndEncountered ? @"NSStreamEventEndEncountered, " : @""
+//		  );
 	// データ受信
 	if (streamEvent & NSStreamEventHasBytesAvailable) {
 		int32_t steps;
@@ -646,7 +619,9 @@ withDiscoveryInfo: (NSDictionary *)info{
 		[theStream removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 	}
 }
-- (void)saveRiminder:(NSString *)title note:(NSString *) note
+
+- (void)saveRiminder: (NSString *)title
+				note: (NSString *) note
 {
 	
 	EKEventStore *eventStore = [[EKEventStore alloc] init];
@@ -706,142 +681,6 @@ withDiscoveryInfo: (NSDictionary *)info{
 //{
 //	
 //}
-
-- (IBAction)button_Action:(id)sender
-{
-
-	integer_MyTensu += 10;
-	
-	NSString *string = [NSString stringWithFormat: @"%06ld", integer_MyTensu];
-	self.label_MyTensu.text = [NSString stringWithFormat: @"自分    %@", string];
-
-	NSError *error = nil;
-	
-	//送信する文字列を作成
-	//NSData へ文字列を変換
-	NSData *data = [string dataUsingEncoding: NSUTF8StringEncoding];
- 
-	//送信先の Peer を指定する
-	NSArray *peerIDs = self.session.connectedPeers;
- 
-	[self.session sendData: data
-				   toPeers: peerIDs
-				  withMode: MCSessionSendDataReliable
-					 error: &error];
-
-	if ( error ) {
-	
-		NSLog( @"%@", error );
-		
-	}
-	
-}
-
-- (void)initBall
-{
-
-	NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-	
-	//UIImageView追加
-	UIImage* image = [UIImage imageNamed: @"ball.png"];
-	
-	UIImageView *imageView = [[UIImageView alloc] initWithImage: image];
-	
-	imageView.center = self.view.center;
-	
-	imageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin |UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
-	
-	[self.view addSubview:imageView];
-	
-	
-	float speed_x = 0.0, speed_y = 0.0;
-	NSNumber *number_x = [[NSNumber alloc] initWithFloat: speed_x];
-	NSNumber *number_y = [[NSNumber alloc] initWithFloat: speed_y];
-	
-	[dic setObject: imageView forKey: @"image_view"];
-	[dic setObject: number_x  forKey: @"speed_x"];
-	[dic setObject: number_y  forKey: @"speed_y"];
-	
-	
-	[array_Ball addObject: dic];
-	
-}
-
-- (void)tamaDown
-{
-	
-	int index;
-	
-loop:
-	
-	index = 0;
-	
-	for ( NSMutableDictionary *dic in array_Ball ) {
-		
-		UIImageView *imageView = [dic objectForKey: @"image_view"];
-		
-		NSInteger ix = imageView.center.x;
-		NSInteger iy = imageView.center.y;
-		NSInteger ax = self.imageView_Ana.center.x;
-		NSInteger ay = self.imageView_Ana.center.y;
-		
-		NSLog( @"%ld > %ld && %ld < %ld && %ld > %ld && %ld < %ld", ix, ax - 20, ix, ax + 20, iy, ay - 20, iy, ay + 20 );
-		
-		if ( ix > ax - 20 && ix < ax + 20 &&
-			iy > ay - 20 && iy < ay + 20     ) {
-			
-			imageView.hidden = YES;
-			
-			integer_MyTensu += 10;
-			
-			NSString *string = [NSString stringWithFormat: @"%06ld", integer_MyTensu];
-			self.label_MyTensu.text = [NSString stringWithFormat: @"自分    %@", string];
-			
-			NSError *error = nil;
-			
-			//送信する文字列を作成
-			//NSData へ文字列を変換
-			NSData *data = [string dataUsingEncoding: NSUTF8StringEncoding];
-			
-			//送信先の Peer を指定する
-			NSArray *peerIDs = self.session.connectedPeers;
-			
-			[self.session sendData: data
-						   toPeers: peerIDs
-						  withMode: MCSessionSendDataReliable
-							 error: &error];
-			
-			if ( error ) {
-				
-				NSLog( @"%@", error );
-				
-			}
-			
-			[imageView removeFromSuperview];
-			
-			[array_Ball removeObjectAtIndex: index];
-			
-			timer_Kieru = [NSTimer scheduledTimerWithTimeInterval: 5.0
-														   target: self
-														 selector: @selector( tabaArawaru )
-														 userInfo: nil
-														  repeats: NO];
-			
-			goto loop;
-			
-		}
-
-		index ++;
-		
-	}
-	
-}
-
-- (void)tabaArawaru
-{
-
-	[self initBall];
-	
-}
+//
 
 @end
