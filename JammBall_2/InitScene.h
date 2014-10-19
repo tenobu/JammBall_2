@@ -1,5 +1,5 @@
 //
-//  StartScene.h
+//  InitScene.h
 //  JammBall_1
 //
 //  Created by 寺内 信夫 on 2014/10/17.
@@ -8,7 +8,7 @@
 
 #import <SpriteKit/SpriteKit.h>
 
-@interface StartScene : SKScene
+@interface InitScene : SKScene
 
 - (void)  setStatusData: (NSString *)string;
 - (void)setReceivedData: (NSString *)string;

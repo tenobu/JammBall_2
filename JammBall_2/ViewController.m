@@ -9,8 +9,9 @@
 #import "ViewController.h"
 
 #import "AppDelegate.h"
-#import "StartScene.h"
+#import "InitScene.h"
 #import "GameScene.h"
+#import "EndScene.h"
 #import <EventKit/EventKit.h>
 #import <EventKitUI/EventKitUI.h>
 #import <CoreMotion/CoreMotion.h>
@@ -56,8 +57,9 @@
 	//敵の管理
 	NSMutableArray *array_Teki;
 	
-	StartScene *startScene;
-	GameScene  *gameScene;
+	InitScene *initScene;
+	GameScene *gameScene;
+	EndScene  *endScene;
 	
 }
 
@@ -119,14 +121,20 @@
 	skView.ignoresSiblingOrder = YES;
 	
 	// Create and configure the scene.
-//	gameScene = [GameScene unarchiveFromFile: @"GameScene"];
-	startScene = [StartScene unarchiveFromFile: @"StartScene"];
 	
-//	gameScene.scaleMode = SKSceneScaleModeAspectFill;
-	startScene.scaleMode = SKSceneScaleModeAspectFill;
+	initScene = [StartScene unarchiveFromFile: @"InitScene"];
+
+	initScene.scaleMode = SKSceneScaleModeAspectFill;
+	
+	gameScene  = [GameScene  unarchiveFromFile: @"GameScene"];
+	
+	gameScene.scaleMode = SKSceneScaleModeAspectFill;
+	
+	endScene  = [EndScene  unarchiveFromFile: @"EndScene"];
+	
+	endScene.scaleMode = SKSceneScaleModeAspectFill;
 	
 	// Present the scene.
-//	[skView presentScene: gameScene];
 	[skView presentScene: startScene];
 
 }
@@ -682,5 +690,66 @@ withDiscoveryInfo: (NSDictionary *)info{
 //	
 //}
 //
+
+- (void)touchesBegan: (NSSet *)touches
+		   withEvent: (UIEvent *)event
+{
+	
+//	SKView * skView = (SKView *)self.view;
+//	
+//	//	GameScene3 *scene3 = [GameScene3 sceneWithSize: self.view.bounds.size];
+//	gameScene3 = [GameScene3 unarchiveFromFile: @"GameScene"];
+//	gameScene3.scaleMode = SKSceneScaleModeAspectFill;
+//	
+//	SKTransition *transition = [SKTransition crossFadeWithDuration:1.0];
+//	
+//	[skView presentScene: gameScene3 transition: transition];
+	
+}
+
+- (void)initStart
+{
+	
+	SKView * skView = (SKView *)self.view;
+	
+	initScene = [GameScene unarchiveFromFile: @"GameScene"];
+	
+	gameScene.scaleMode = SKSceneScaleModeAspectFill;
+	
+	SKTransition *transition = [SKTransition crossFadeWithDuration: 1.0];
+	
+	[skView presentScene: gameScene transition: transition];
+	
+}
+
+- (void)gameStart
+{
+	
+	SKView * skView = (SKView *)self.view;
+	
+	gameScene = [GameScene unarchiveFromFile: @"GameScene"];
+	
+	gameScene.scaleMode = SKSceneScaleModeAspectFill;
+	
+	SKTransition *transition = [SKTransition crossFadeWithDuration: 1.0];
+	
+	[skView presentScene: gameScene transition: transition];
+	
+}
+
+- (void)endStart
+{
+	
+	SKView * skView = (SKView *)self.view;
+	
+	endScene = [EndScene unarchiveFromFile: @"EndScene"];
+	
+	endScene.scaleMode = SKSceneScaleModeAspectFill;
+	
+	SKTransition *transition = [SKTransition crossFadeWithDuration: 1.0];
+	
+	[skView presentScene: endScene transition: transition];
+	
+}
 
 @end

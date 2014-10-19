@@ -10,8 +10,8 @@
 		98AE02B919F3AC2D00A9B11D /* GameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 98AE02B519F3AC2D00A9B11D /* GameScene.m */; };
 		98AE02BA19F3AC2D00A9B11D /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 98AE02B619F3AC2D00A9B11D /* GameScene.sks */; };
 		98AE02BB19F3AC2D00A9B11D /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 98AE02B819F3AC2D00A9B11D /* GameView.m */; };
-		98AE02BF19F3AC7C00A9B11D /* StartScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 98AE02BD19F3AC7C00A9B11D /* StartScene.m */; };
-		98AE02C019F3AC7C00A9B11D /* StartScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 98AE02BE19F3AC7C00A9B11D /* StartScene.sks */; };
+		98AE02CC19F3F5AC00A9B11D /* EndScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 98AE02CB19F3F5AC00A9B11D /* EndScene.m */; };
+		98AE02CF19F3FA8600A9B11D /* InitScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 98AE02CE19F3FA8500A9B11D /* InitScene.m */; };
 		98CDD7BC19DE337200A83271 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 98CDD7BB19DE337200A83271 /* main.m */; };
 		98CDD7BF19DE337200A83271 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 98CDD7BE19DE337200A83271 /* AppDelegate.m */; };
 		98CDD7C219DE337200A83271 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 98CDD7C119DE337200A83271 /* ViewController.m */; };
@@ -39,9 +39,10 @@
 		98AE02B619F3AC2D00A9B11D /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
 		98AE02B719F3AC2D00A9B11D /* GameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
 		98AE02B819F3AC2D00A9B11D /* GameView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
-		98AE02BC19F3AC7C00A9B11D /* StartScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartScene.h; sourceTree = "<group>"; };
-		98AE02BD19F3AC7C00A9B11D /* StartScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartScene.m; sourceTree = "<group>"; };
-		98AE02BE19F3AC7C00A9B11D /* StartScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = StartScene.sks; sourceTree = "<group>"; };
+		98AE02CA19F3F5AC00A9B11D /* EndScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EndScene.h; sourceTree = "<group>"; };
+		98AE02CB19F3F5AC00A9B11D /* EndScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EndScene.m; sourceTree = "<group>"; };
+		98AE02CD19F3FA8500A9B11D /* InitScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InitScene.h; sourceTree = "<group>"; };
+		98AE02CE19F3FA8500A9B11D /* InitScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InitScene.m; sourceTree = "<group>"; };
 		98CDD7B619DE337200A83271 /* JammBall_2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JammBall_2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		98CDD7BA19DE337200A83271 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		98CDD7BB19DE337200A83271 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -104,14 +105,15 @@
 				98CDD7BE19DE337200A83271 /* AppDelegate.m */,
 				98CDD7C019DE337200A83271 /* ViewController.h */,
 				98CDD7C119DE337200A83271 /* ViewController.m */,
-				98AE02BC19F3AC7C00A9B11D /* StartScene.h */,
-				98AE02BD19F3AC7C00A9B11D /* StartScene.m */,
-				98AE02BE19F3AC7C00A9B11D /* StartScene.sks */,
+				98AE02CD19F3FA8500A9B11D /* InitScene.h */,
+				98AE02CE19F3FA8500A9B11D /* InitScene.m */,
 				98AE02B419F3AC2D00A9B11D /* GameScene.h */,
 				98AE02B519F3AC2D00A9B11D /* GameScene.m */,
 				98AE02B619F3AC2D00A9B11D /* GameScene.sks */,
 				98AE02B719F3AC2D00A9B11D /* GameView.h */,
 				98AE02B819F3AC2D00A9B11D /* GameView.m */,
+				98AE02CA19F3F5AC00A9B11D /* EndScene.h */,
+				98AE02CB19F3F5AC00A9B11D /* EndScene.m */,
 				98CDD7C619DE337200A83271 /* Images.xcassets */,
 				98CDD7E419DE343300A83271 /* images */,
 				98CDD7B919DE337200A83271 /* Supporting Files */,
@@ -234,7 +236,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				98AE02C019F3AC7C00A9B11D /* StartScene.sks in Resources */,
 				98CDD7E819DE343300A83271 /* blackhall.png in Resources */,
 				98CDD7C519DE337200A83271 /* Main.storyboard in Resources */,
 				98CDD7CA19DE337200A83271 /* LaunchScreen.xib in Resources */,
@@ -258,10 +259,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98AE02CF19F3FA8600A9B11D /* InitScene.m in Sources */,
 				98CDD7C219DE337200A83271 /* ViewController.m in Sources */,
-				98AE02BF19F3AC7C00A9B11D /* StartScene.m in Sources */,
 				98AE02BB19F3AC2D00A9B11D /* GameView.m in Sources */,
 				98CDD7BF19DE337200A83271 /* AppDelegate.m in Sources */,
+				98AE02CC19F3F5AC00A9B11D /* EndScene.m in Sources */,
 				98AE02B919F3AC2D00A9B11D /* GameScene.m in Sources */,
 				98CDD7BC19DE337200A83271 /* main.m in Sources */,
 			);
